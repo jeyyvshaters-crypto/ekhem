@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Surprise - Special for You</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Quicksand:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Quicksand', 'sans-serif'],
+                        handwriting: ['Caveat', 'cursive'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .font-handwriting { font-family: 'Caveat', cursive; }
+        
+        /* Custom animations */
+        @keyframes pulse-subtle {
+            0%, 100% { transform: scale(1); box-shadow: 0 10px 25px -5px rgba(244, 114, 182, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 20px 35px -5px rgba(244, 114, 182, 0.6); }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 2s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(3deg); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(-5deg); }
+        }
+        .animate-float-slow {
+            animation: float-slow 7s ease-in-out infinite;
+        }
+
+        /* Envelope Flap Animation */
+        .envelope-container {
+            perspective: 1000px;
+        }
+        .envelope {
+            position: relative;
+            transition: all 0.6s ease;
+        }
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(135deg, #fbcfe8, #f472b6);
+            clip-path: polygon(0 0, 50% 100%, 100% 0);
+            transform-origin: top;
+            transition: transform 0.6s ease-in-out;
+            z-index: 30;
+        }
+        .flap.open {
+            transform: rotateX(180deg);
+            z-index: 5;
+        }
+
+        /* Letter Slide Up */
+        .letter-card {
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.27), opacity 0.5s ease;
+            transform: translateY(120px) scale(0.9);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .letter-card.visible {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Scrapbook tape */
+        .tape {
+            position: absolute;
+            width: 90px;
+            height: 28px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border-left: 2px dashed rgba(0,0,0,0.1);
+            border-right: 2px dashed rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            z-index: 40;
+        }
+
+        /* Gift box animation */
+        @keyframes wobble {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-4deg); }
+            75% { transform: rotate(4deg); }
+        }
+        .gift-box:hover {
+            animation: wobble 0.5s ease infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f472b6;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body id="appBody" class="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-rose-100 font-sans text-gray-800 flex flex-col items-center justify-center p-4 overflow-x-hidden relative">
+
+    <!-- Floating Background Decor -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute top-10 left-10 text-pink-300 text-3xl animate-float"><i class="fa-solid fa-heart"></i></div>
+        <div class="absolute top-20 right-16 text-purple-300 text-2xl animate-float-slow"><i class="fa-solid fa-star"></i></div>
+        <div class="absolute bottom-16 left-20 text-rose-300 text-3xl animate-float-slow"><i class="fa-solid fa-seedling"></i></div>
+        <div class="absolute bottom-24 right-24 text-pink-400 text-2xl animate-float"><i class="fa-solid fa-gift"></i></div>
+        <div class="absolute top-1/2 left-5 text-yellow-300 text-2xl animate-float"><i class="fa-solid fa-sparkles"></i></div>
+        <div class="absolute top-1/3 right-8 text-pink-300 text-3xl animate-float-slow"><i class="fa-solid fa-heart"></i></div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="mainContainer" class="w-full max-w-md md:max-w-xl mx-auto z-10 flex flex-col items-center">
+
+        <!-- SCREEN 1: LANDING PAGE -->
+        <div id="screenLanding" class="w-full bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl p-8 text-center border border-white flex flex-col items-center transition-all duration-500">
+            <div class="w-24 h-24 bg-gradient-to-tr from-pink-400 to-rose-400 rounded-full flex items-center justify-center text-white text-4xl shadow-lg mb-6 animate-float">
+                <i class="fa-solid fa-cake-candles"></i>
+            </div>
+            
+            <div class="inline-block bg-pink-100 text-pink-600 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase mb-3">
+                Special Birthday Edition ✨
+            </div>
+            
+            <h1 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-3">
+                You Have a Birthday Surprise!
+            </h1>
+            <p id="landingSubText" class="text-gray-600 text-sm md:text-base mb-8 px-4">
+                Seseorang yang spesial telah mengirimkan sesuatu yang penuh makna dan kejutan manis khusus untukmu.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-3 w-full">
+                <button onclick="startExperience()" class="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-4 px-8 rounded-2xl shadow-lg animate-pulse-subtle transition-all duration-300 flex items-center justify-center gap-3 text-lg">
+                    <i class="fa-solid fa-envelope-open-text"></i> Open Your Surprise
+                </button>
+            </div>
+
+            <button onclick="openEditorModal()" class="mt-4 text-xs text-pink-600 hover:text-pink-800 font-medium underline flex items-center gap-1.5 transition-colors">
+                <i class="fa-solid fa-pen-to-square"></i> Buat Kartu Versimu Sendiri (Card Creator)
+            </button>
+        </div>
+
+        <!-- SCREEN 2: ENVELOPE & LETTER EXPERIENCE (Hidden initially) -->
+        <div id="screenEnvelope" class="w-full hidden flex flex-col items-center transition-all duration-500">
+            
+            <!-- Top Controls (Music & Back) -->
+            <div class="w-full flex justify-between items-center mb-4 px-2">
+                <button onclick="resetToLanding()" class="bg-white/70 hover:bg-white text-gray-700 px-3 py-1.5 rounded-xl shadow text-xs font-medium backdrop-blur flex items-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <div class="flex items-center gap-2">
+                    <button id="musicToggleBtn" onclick="toggleMusic()" class="bg-white/70 hover:bg-white text-pink-600 px-3 py-1.5 rounded-xl shadow text-xs font-semibold backdrop-blur flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-music"></i> <span id="musicBtnText">Play Casual 🎵</span>
+                    </button>
+                    <button onclick="openEditorModal()" class="bg-white/70 hover:bg-white text-gray-700 px-3 py-1.5 rounded-xl shadow text-xs font-medium backdrop-blur flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-gear"></i> Edit
+                    </button>
+                </div>
+            </div>
+
+            <!-- Envelope Stage -->
+            <div id="envelopeStage" class="w-full flex flex-col items-center py-6">
+                <div class="relative w-72 h-48 md:w-80 md:h-52 bg-gradient-to-b from-pink-300 to-rose-300 rounded-2xl shadow-2xl envelope-container cursor-pointer flex items-center justify-center border-2 border-white/50" onclick="openEnvelope()">
+                    <!-- Envelope Flap -->
+                    <div id="envelopeFlap" class="flap"></div>
+                    
+                    <!-- Envelope Pocket Details -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-rose-400/30 to-transparent rounded-2xl pointer-events-none"></div>
+
+                    <!-- Seal Heart Sticker -->
+                    <div id="envelopeSeal" class="absolute z-40 w-12 h-12 bg-rose-500 text-white rounded-full shadow-lg flex items-center justify-center text-xl animate-bounce">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+
+                    <!-- Instruction Text -->
+                    <div id="tapToOpenPrompt" class="absolute -bottom-10 text-center w-full">
+                        <span class="bg-white/90 text-pink-600 px-4 py-1.5 rounded-full text-xs font-bold shadow-md animate-pulse">
+                            <i class="fa-solid fa-hand-pointer mr-1"></i> Tap to Open Envelope!
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Letter Card (Slides Up when envelope opens) -->
+            <div id="letterCardContainer" class="w-full letter-card mt-2">
+                <div class="relative bg-amber-50/95 backdrop-blur-md rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-amber-200/60 overflow-hidden">
+                    
+                    <!-- Scrapbook Decorative Tape -->
+                    <div class="tape top-2 left-1/2 -translate-x-1/2 rotate-1"></div>
+
+                    <!-- Card Header -->
+                    <div class="text-center mb-4 mt-2">
+                        <span class="text-xs font-bold text-pink-500 uppercase tracking-widest">Special Birthday Greeting</span>
+                        <h2 id="displayRecipient" class="text-2xl md:text-3xl font-handwriting font-bold text-rose-600 mt-1">
+                            Happy Birthday, GEJAAN MY CEWE AKUUU!
+                        </h2>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="flex items-center justify-center gap-2 my-3 text-pink-400">
+                        <i class="fa-solid fa-star text-xs"></i>
+                        <div class="h-0.5 w-24 bg-pink-200 rounded"></div>
+                        <i class="fa-solid fa-heart text-xs"></i>
+                        <div class="h-0.5 w-24 bg-pink-200 rounded"></div>
+                        <i class="fa-solid fa-star text-xs"></i>
+                    </div>
+
+                    <!-- Letter Body with Typing Effect -->
+                    <div class="bg-white/80 rounded-2xl p-4 md:p-6 shadow-inner mb-6 border border-amber-100">
+                        <p id="displayMessage" class="font-handwriting text-xl md:text-2xl text-gray-700 leading-relaxed text-center min-h-[110px]">
+                            <!-- Typed message will appear here -->
+                        </p>
+                    </div>
+
+                    <!-- Sender Signature -->
+                    <div class="text-right mb-6">
+                        <p class="text-xs text-gray-500">Sent with love,</p>
+                        <p id="displaySender" class="font-handwriting text-2xl text-rose-600 font-bold">jzluvluv (jeyzan)</p>
+                    </div>
+
+                    <!-- Interactive Surprise Actions Bar -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-amber-200/60">
+                        <button onclick="openGiftModal()" class="bg-gradient-to-r from-pink-500 to-rose-500 hover:opacity-95 text-white py-2.5 px-3 rounded-xl shadow text-xs font-bold flex flex-col items-center gap-1 transition-all">
+                            <i class="fa-solid fa-gift text-sm"></i> Open Gift
+                        </button>
+                        <button onclick="toggleMusic()" class="bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-95 text-white py-2.5 px-3 rounded-xl shadow text-xs font-bold flex flex-col items-center gap-1 transition-all">
+                            <i class="fa-solid fa-music text-sm"></i> <span id="musicActionText">Play Casual 🎵</span>
+                        </button>
+                        <button onclick="openSecretNote()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-95 text-white py-2.5 px-3 rounded-xl shadow text-xs font-bold flex flex-col items-center gap-1 transition-all">
+                            <i class="fa-solid fa-note-sticky text-sm"></i> One More
+                        </button>
+                        <button onclick="replayExperience()" class="bg-gradient-to-r from-teal-500 to-emerald-500 hover:opacity-95 text-white py-2.5 px-3 rounded-xl shadow text-xs font-bold flex flex-col items-center gap-1 transition-all">
+                            <i class="fa-solid fa-rotate-right text-sm"></i> Replay
+                        </button>
+                    </div>
+
+                    <!-- Share Card Button -->
+                    <div class="mt-4 text-center">
+                        <button onclick="shareMyCard()" class="w-full bg-white hover:bg-pink-50 text-pink-600 border border-pink-300 py-2.5 px-4 rounded-xl shadow-sm text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-share-nodes"></i> Share My Card (Export HTML / Link)
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL: GIFT BOX SURPRISE -->
+    <div id="giftModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl transform transition-all scale-95 animate-fadeIn relative">
+            <button onclick="closeGiftModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="w-20 h-20 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 gift-box">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3 class="text-2xl font-bold font-serif text-gray-800 mb-2">🎁 Your Special Gift!</h3>
+            <div class="bg-pink-50 p-4 rounded-2xl border border-pink-100 mb-4">
+                <p id="giftContentText" class="font-handwriting text-2xl text-pink-700">
+                    "Voucher pelukan hangat sepuasnya + traktir makanan kesukaan kapanpun kamu mau! ❤️"
+                </p>
+            </div>
+            <button onclick="closeGiftModal()" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md transition-all">
+                Terima Hadiahnya! ✨
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: ONE MORE SURPRISE (SECRET NOTE) -->
+    <div id="secretModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-amber-50 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border-4 border-amber-200 relative">
+            <button onclick="closeSecretNote()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-amber-500 text-3xl mb-2">
+                <i class="fa-solid fa-note-sticky"></i>
+            </div>
+            <h3 class="text-2xl font-serif font-bold text-gray-800 mb-2">Pesan Rahasia 💌</h3>
+            <p class="font-handwriting text-2xl text-gray-700 leading-relaxed mb-6">
+                "ikan hiu makan berang berang, i love u sayang 💖"
+            </p>
+            <button onclick="closeSecretNote()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md transition-all">
+                So Sweet! 🥰
+            </button>
+        </div>
+    </div>
+<!-- ... existing code ?>
+    <!-- AUDIO ELEMENT FOR CHAPPELL ROAN - CASUAL -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://ia801503.us.archive.org/15/items/chappell-roan-casual/Chappell%20Roan%20-%20Casual.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // State data
+        let cardData = {
+            recipient: "GEJAAN MY CEWE AKUUU",
+            sender: "jzluvluv (jeyzan)",
+            message: "Selamat ulang tahun yaaa, Semoga hari ini dipenuhi kebahagiaan, tawa, dan hal-hal baik. Semoga semua impian dan cita cita kamu perlahan menjadi kenyataan dan kamu selalu dikelilingi orang-orang yang menyayangimu.",
+            gift: "voucher peluk abi sepuasnya, samaa nantii tunggu ajahh 😈",
+            theme: "pastel"
+        };
+
+        let isEnvelopeOpened = false;
+        let typingTimeout = null;
+        let audioCtx = null;
+        let isMusicPlaying = false;
+        let musicInterval = null;
+
+        // Load saved card from localStorage if any
+        window.onload = function() {
+            const saved = localStorage.getItem('birthday_surprise_card');
+            if (saved) {
+                try {
+                    cardData = JSON.parse(saved);
+                } catch(e) {}
+            }
+            applyCardDataToDOM();
+        };
+
+        function applyCardDataToDOM() {
+            document.getElementById('displayRecipient').innerText = `Happy Birthday, ${cardData.recipient}!`;
+            document.getElementById('displaySender').innerText = cardData.sender;
+            document.getElementById('giftContentText').innerText = `"${cardData.gift}"`;
+            
+            // Apply theme
+            const body = document.getElementById('appBody');
+            body.className = "min-h-screen font-sans text-gray-800 flex flex-col items-center justify-center p-4 overflow-x-hidden relative transition-colors duration-500";
+            
+            if (cardData.theme === 'pink') {
+                body.classList.add('bg-gradient-to-br', 'from-rose-200', 'via-pink-200', 'to-red-100');
+            } else if (cardData.theme === 'purple') {
+                body.classList.add('bg-gradient-to-br', 'from-purple-200', 'via-indigo-200', 'to-pink-200');
+            } else if (cardData.theme === 'dark') {
+                body.classList.add('bg-gradient-to-br', 'from-slate-900', 'via-purple-950', 'to-slate-900');
+                body.style.color = '#f3f4f6';
+            } else {
+                body.classList.add('bg-gradient-to-br', 'from-pink-100', 'via-purple-100', 'to-rose-100');
+            }
+        }
+
+        function startExperience() {
+            document.getElementById('screenLanding').classList.add('hidden');
+            document.getElementById('screenEnvelope').classList.remove('hidden');
+            isEnvelopeOpened = false;
+            
+            // Reset envelope state
+            document.getElementById('envelopeFlap').classList.remove('open');
+            document.getElementById('envelopeSeal').style.display = 'flex';
+            document.getElementById('tapToOpenPrompt').style.display = 'block';
+            document.getElementById('letterCardContainer').classList.remove('visible');
+
+            // Automatically start music upon user gesture
+            startMusic();
+        }
+
+        function resetToLanding() {
+            document.getElementById('screenEnvelope').classList.add('hidden');
+            document.getElementById('screenLanding').classList.remove('hidden');
+            stopMusic();
+        }
+
+        function openEnvelope() {
+            if (isEnvelopeOpened) return;
+            isEnvelopeOpened = true;
+
+            // Animate flap
+            document.getElementById('envelopeFlap').classList.add('open');
+            document.getElementById('envelopeSeal').style.display = 'none';
+            document.getElementById('tapToOpenPrompt').style.display = 'none';
+
+            // Ensure music plays on tap
+            if (!isMusicPlaying) {
+                startMusic();
+            }
+
+            // Trigger Confetti effect
+            triggerConfetti();
+
+            // Slide up letter after slight delay
+            setTimeout(() => {
+                document.getElementById('letterCardContainer').classList.add('visible');
+                startTypingEffect(cardData.message);
+            }, 500);
+        }
+
+        function startTypingEffect(text) {
+            const displayEl = document.getElementById('displayMessage');
+            displayEl.innerHTML = "";
+            let i = 0;
+            
+            if (typingTimeout) clearTimeout(typingTimeout);
+
+            function typeWriter() {
+                if (i < text.length) {
+                    displayEl.innerHTML += text.charAt(i);
+                    i++;
+                    typingTimeout = setTimeout(typeWriter, 35);
+                }
+            }
+            typeWriter();
+        }
+
+        function replayExperience() {
+            if (typingTimeout) clearTimeout(typingTimeout);
+            document.getElementById('letterCardContainer').classList.remove('visible');
+            document.getElementById('envelopeFlap').classList.remove('open');
+            document.getElementById('envelopeSeal').style.display = 'flex';
+            document.getElementById('tapToOpenPrompt').style.display = 'block';
+            isEnvelopeOpened = false;
+        }
+
+        // Confetti Generator
+        function triggerConfetti() {
+            const colors = ['#f472b6', '#fb7185', '#fbbf24', '#a78bfa', '#34d399'];
+            for (let i = 0; i < 40; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'absolute z-50 pointer-events-none rounded-full';
+                const size = Math.random() * 8 + 6;
+                conf.style.width = `${size}px`;
+                conf.style.height = `${size}px`;
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.top = '40%';
+                conf.style.left = '50%';
+                
+                document.body.appendChild(conf);
+
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 120 + 60;
+                const tx = Math.cos(angle) * velocity;
+                const ty = Math.sin(angle) * velocity - 80;
+
+                conf.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { transform: `translate(${tx}px, ${ty}px) rotate(${Math.random() * 360}deg) scale(0.5)`, opacity: 0 }
+                ], {
+                    duration: 1200 + Math.random() * 800,
+                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+                }).onfinish = () => conf.remove();
+            }
+        }
+
+        // Audio controls using Chappell Roan - Casual
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                stopMusic();
+            } else {
+                startMusic();
+            }
+        }
+
+        function startMusic() {
+            const audio = document.getElementById('bgMusic');
+            if (audio) {
+                audio.volume = 0.6;
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        isMusicPlaying = true;
+                        updateMusicUI();
+                    }).catch(() => {
+                        // If MP3 fails or blocked, fallback to Web Audio synthesis
+                        startSynthFallback();
+                    });
+                }
+            }
+        }
+
+        function stopMusic() {
+            const audio = document.getElementById('bgMusic');
+            if (audio) {
+                audio.pause();
+            }
+            if (musicInterval) clearInterval(musicInterval);
+            isMusicPlaying = false;
+            updateMusicUI();
+        }
+
+        function updateMusicUI() {
+            const text = isMusicPlaying ? 'Pause Casual 🎵' : 'Play Casual 🎵';
+            document.getElementById('musicBtnText').innerText = text;
+            document.getElementById('musicActionText').innerText = text;
+        }
+
+        // Synth fallback if audio file cannot be reached
+        function startSynthFallback() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                isMusicPlaying = true;
+                updateMusicUI();
+
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                let noteIndex = 0;
+
+                if (musicInterval) clearInterval(musicInterval);
+                musicInterval = setInterval(() => {
+                    if (!isMusicPlaying) return;
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.value = notes[noteIndex];
+                    noteIndex = (noteIndex + 1) % notes.length;
+
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.5);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 1.5);
+                }, 800);
+            } catch (e) {}
+        }
+
+        // Modal Controls
+        function openGiftModal() {
+            document.getElementById('giftModal').classList.remove('hidden');
+        }
+        function closeGiftModal() {
+            document.getElementById('giftModal').classList.add('hidden');
+        }
+
+        function openSecretNote() {
+            document.getElementById('secretModal').classList.remove('hidden');
+        }
+        function closeSecretNote() {
+            document.getElementById('secretModal').classList.add('hidden');
+        }
+
+        function openEditorModal() {
+            document.getElementById('inputRecipient').value = cardData.recipient;
+            document.getElementById('inputSender').value = cardData.sender;
+            document.getElementById('inputMessage').value = cardData.message;
+            document.getElementById('inputGift').value = cardData.gift;
+            document.getElementById('selectTheme').value = cardData.theme;
+            document.getElementById('editorModal').classList.remove('hidden');
+        }
+        function closeEditorModal() {
+            document.getElementById('editorModal').classList.add('hidden');
+        }
+
+        function saveAndApplyCard() {
+            cardData.recipient = document.getElementById('inputRecipient').value.trim() || "Sahabatku";
+            cardData.sender = document.getElementById('inputSender').value.trim() || "Seseorang";
+            cardData.message = document.getElementById('inputMessage').value.trim() || "Selamat ulang tahun!";
+            cardData.gift = document.getElementById('inputGift').value.trim() || "Hadiah spesial untukmu!";
+            cardData.theme = document.getElementById('selectTheme').value;
+
+            localStorage.setItem('birthday_surprise_card', JSON.stringify(cardData));
+            applyCardDataToDOM();
+            closeEditorModal();
+            showNotification("Berhasil Disimpan!", "Kartu ucapanmu telah diperbarui.");
+            
+            if (!document.getElementById('screenEnvelope').classList.contains('hidden')) {
+                startTypingEffect(cardData.message);
+            }
+        }
+
+        function showNotification(title, msg) {
+            document.getElementById('notifTitle').innerText = title;
+            document.getElementById('notifMessage').innerText = msg;
+            document.getElementById('notificationModal').classList.remove('hidden');
+        }
+        function closeNotification() {
+            document.getElementById('notificationModal').classList.add('hidden');
+        }
+
+        // Share Card feature (Generates standalone HTML blob download or copies text)
+        function shareMyCard() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Birthday_Surprise_${cardData.recipient.replace(/\s+/g, '_')}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification("Kartu Berhasil Diexport!", "File HTML mandiri telah diunduh! Kamu bisa mengirimkan file ini ke penerima agar bisa dibuka langsung di browser HP mereka tanpa instal aplikasi.");
+        }
+    </script>
+</body>
+</html>
